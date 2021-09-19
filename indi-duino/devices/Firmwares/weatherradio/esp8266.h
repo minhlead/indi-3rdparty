@@ -15,6 +15,18 @@
 #include <ESP8266WebServer.h>
 #include <uri/UriRegex.h>
 #include "memory.h"
+#include <ESP8266HTTPClient.h>
+#include <EEPROM.h>
+
+int i = 0;
+int statusCode;
+const char* ssid = "text";
+const char* passphrase = "text";
+String st;
+String content;
+bool testWifi(void);
+void launchWeb(void);
+void setupAP(void);
 
 #define WIFI_MAX_RECONNECT      10  // try 10 times to connect until giving up
 #define WIFI_SLEEP_CONNECT    5000  // wait 1 second until next connection retry
