@@ -405,7 +405,57 @@ void setup() {
 #endif //USE_TSL237_SENSOR
 
 #ifdef USE_WIFI
-  initWiFi();
+ EEPROM.begin(512); //Initialasing EEPROM
+  delay(10);
+  pinMode(LED_BUILTIN, OUTPUT);
+  Serial.println();
+  Serial.println();
+  Serial.println("Startup");
+ 
+  //---------------------------------------- Read EEPROM for SSID and pass
+  Serial.println("Reading EEPROM ssid");
+ 
+  String esid;
+  for (int i = 0; i < 32; ++i)
+  {
+    esid += char(EEPROM.read(i));
+  }
+  Serial.println();
+  Serial.print("SSID: ");
+  Serial.println(esid);
+  Serial.println("Reading EEPROM pass");
+ 
+  String epass = "";
+  for (int i = 32; i < 96; ++i)
+  {
+    epass += char(EEPROM.read(i));
+  }
+  Serial.print("PASS: ");
+  Serial.println(epass);
+ 
+ 
+  WiFi.begin(esid.c_str(), epass.c_str());
+  if (testWifi())
+  {
+    Serial.println("Succesfully Connected!!!");
+    return;
+  }
+  else
+  {
+    Serial.println("Turning the HotSpot On");
+    launchWeb();
+    setupAP();// Setup HotSpot
+  }
+ 
+  Serial.println();
+  Serial.println("Waiting.");
+  
+  while ((WiFi.status() != WL_CONNECTED))
+  {
+    Serial.print(".");
+    delay(100);
+    server.handleClient();
+  }
 
   server.on("/", []() {
     addJsonLine(getSensorData(false));
